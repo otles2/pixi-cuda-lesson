@@ -1,0 +1,6 @@
+logs/        # Ignore logs folder
+tmp/         # Ignore temp folder
+*.log        # Ignore all .log files anywhere
+.env         # Ignore environment config file
+dir-structure/
+example/
