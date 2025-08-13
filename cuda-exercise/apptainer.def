@@ -1,0 +1,56 @@
+Bootstrap: docker
+From: ghcr.io/prefix-dev/pixi:noble
+Stage: build
+
+%files
+./pixi.toml /app/
+./pixi.lock /app/
+./.gitignore /app/
+
+%post
+#!/bin/bash
+export CONDA_OVERRIDE_CUDA=12
+cd /app/
+pixi info
+pixi install --locked --environment gpu
+echo "#!/bin/bash" > /app/entrypoint.sh && \
+pixi shell-hook --environment gpu -s bash >> /app/entrypoint.sh && \
+echo 'exec "$@"' >> /app/entrypoint.sh
+
+
+Bootstrap: docker
+From: ghcr.io/prefix-dev/pixi:noble
+Stage: final
+
+%files from build
+/app/.pixi/envs/gpu /app/.pixi/envs/gpu
+/app/pixi.toml /app/pixi.toml
+/app/pixi.lock /app/pixi.lock
+/app/.gitignore /app/.gitignore
+# The ignore files are needed for 'pixi run' to work in the container
+/app/.pixi/.gitignore /app/.pixi/.gitignore
+/app/.pixi/.condapackageignore /app/.pixi/.condapackageignore
+/app/entrypoint.sh /app/entrypoint.sh
+
+%files
+./app /app/src
+
+%post
+#!/bin/bash
+cd /app/
+pixi info
+chmod +x /app/entrypoint.sh
+
+%runscript
+#!/bin/bash
+/app/entrypoint.sh "$@"
+
+%startscript
+#!/bin/bash
+/app/entrypoint.sh "$@"
+
+%test
+#!/bin/bash -e
+. /app/entrypoint.sh
+pixi info
+pixi list
