@@ -1,0 +1,27 @@
+[workspace]
+authors = ["otles2 <otles2@wisc.edu>"]
+channels = ["conda-forge"]
+name = "example"
+platforms = ["osx-arm64", "linux-64", "win-64"]
+version = "0.1.0"
+
+[dependencies]
+python = ">=3.13.5,<3.14"
+jupyter = ">=1.1.1,<2"
+numpy = ">=2.3.2,<3"
+notebook = ">=7.4.5,<8"
+jupyterlab = ">=4.4.5,<5"
+
+[tasks.lab]
+description = "Launch Jupyterlab" 
+cmd = "jupyter lab" 
+
+[tasks.start]
+description = "Start Exploring" 
+depends-on = ["lab"] 
+
+[feature.dev.dependencies]
+pre-commit = ">=4.3.0,<5"
+
+[environments]
+dev = ["dev"]
